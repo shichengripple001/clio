@@ -66,6 +66,7 @@ enumerateNFTOffers(
     ripple::uint256 const& tokenid,
     ripple::Keylet const& directory)
 {
+    using json::value_from;
     auto const& request = context.params;
 
     auto v = ledgerInfoFromRequest(context);
@@ -83,8 +84,8 @@ enumerateNFTOffers(
     if (auto const status = getLimit(context, limit); status)
         return status;
 
-    boost::json::object response = {};
-    boost::json::array jsonOffers = {};
+    json::object response = {};
+    json::array jsonOffers = {};
     response[JS(nft_id)] = ripple::to_string(tokenid);
 
     std::vector<ripple::SLE> offers;
@@ -114,7 +115,7 @@ enumerateNFTOffers(
             return Status{RippledError::rpcINVALID_PARAMS};
 
         startHint = sle->getFieldU64(ripple::sfNFTokenOfferNode);
-        jsonOffers.push_back(json::value_from(*sle));
+        jsonOffers.push_back(value_from(*sle));
         offers.reserve(reserve);
     }
     else

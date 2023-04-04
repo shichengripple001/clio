@@ -207,10 +207,11 @@ tag_invoke(
     boost::json::value& jv,
     NoRippleCheckHandler::Output const& output)
 {
+    using boost::json::value_from;
     auto obj = boost::json::object{
         {JS(ledger_hash), output.ledgerHash},
         {JS(ledger_index), output.ledgerIndex},
-        {"problems", output.problems}};
+        {"problems", value_from(output.problems)}};
     if (output.transactions)
     {
         obj.emplace(JS(transactions), *(output.transactions));

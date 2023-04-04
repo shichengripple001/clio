@@ -165,17 +165,20 @@ tag_invoke(
     boost::json::value& jv,
     AccountChannelsHandler::Output const& output)
 {
-    boost::json::object obj;
-    obj = {
+    using boost::json::value_from;
+    boost::json::object obj = {
         {JS(account), output.account},
         {JS(ledger_hash), output.ledgerHash},
         {JS(ledger_index), output.ledgerIndex},
         {JS(validated), output.validated},
         {JS(limit), output.limit},
-        {JS(channels), output.channels}};
+        {JS(channels), value_from(output.channels)},
+    };
+
     if (output.marker)
         obj[JS(marker)] = output.marker.value();
-    jv = obj;
+
+    jv = std::move(obj);
 }
 
 void
@@ -184,14 +187,15 @@ tag_invoke(
     boost::json::value& jv,
     AccountChannelsHandler::ChannelResponse const& channel)
 {
-    boost::json::object obj;
-    obj = {
+    boost::json::object obj = {
         {JS(channel_id), channel.channelID},
         {JS(account), channel.account},
         {JS(destination_account), channel.accountDestination},
         {JS(amount), channel.amount},
         {JS(balance), channel.balance},
-        {JS(settle_delay), channel.settleDelay}};
+        {JS(settle_delay), channel.settleDelay},
+    };
+
     if (channel.publicKey)
         obj[JS(public_key)] = *(channel.publicKey);
     if (channel.publicKeyHex)
@@ -204,6 +208,7 @@ tag_invoke(
         obj[JS(source_tag)] = *(channel.sourceTag);
     if (channel.destinationTag)
         obj[JS(destination_tag)] = *(channel.destinationTag);
-    jv = obj;
+
+    jv = std::move(obj);
 }
 }  // namespace RPCng

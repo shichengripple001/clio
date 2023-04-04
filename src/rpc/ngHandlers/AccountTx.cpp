@@ -151,6 +151,7 @@ tag_invoke(
     boost::json::value& jv,
     AccountTxHandler::Output const& output)
 {
+    using boost::json::value_from;
     jv = {
         {JS(account), output.account},
         {JS(ledger_index_min), output.ledgerIndexMin},
@@ -158,7 +159,7 @@ tag_invoke(
         {JS(transactions), output.transactions},
         {JS(validated), output.validated}};
     if (output.marker)
-        jv.as_object()[JS(marker)] = boost::json::value_from(*(output.marker));
+        jv.as_object()[JS(marker)] = value_from(*(output.marker));
     if (output.limit)
         jv.as_object()[JS(limit)] = *(output.limit);
 }

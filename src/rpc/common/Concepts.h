@@ -22,6 +22,7 @@
 #include <rpc/common/Types.h>
 
 #include <boost/asio/spawn.hpp>
+#include <boost/json/value.hpp>
 #include <boost/json/value_from.hpp>
 #include <boost/json/value_to.hpp>
 

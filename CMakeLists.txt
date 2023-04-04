@@ -38,7 +38,6 @@ target_sources(clio PRIVATE
   src/main/impl/Build.cpp
   ## Backend
   src/backend/BackendInterface.cpp
-  src/backend/CassandraBackend.cpp
   src/backend/SimpleCache.cpp
   ## NextGen Backend
   src/backend/cassandra/impl/Future.cpp
@@ -131,7 +130,6 @@ if(BUILD_TESTS)
   set(TEST_TARGET clio_tests)
   add_executable(${TEST_TARGET}
     unittests/Playground.cpp
-    unittests/Backend.cpp
     unittests/Logger.cpp
     unittests/Config.cpp
     unittests/ProfilerTest.cpp
@@ -168,7 +166,6 @@ if(BUILD_TESTS)
     unittests/rpc/handlers/RandomTest.cpp
     # Backend
     unittests/backend/cassandra/BaseTests.cpp
-    unittests/backend/cassandra/BackendTests.cpp
     unittests/backend/cassandra/RetryPolicyTests.cpp
     unittests/backend/cassandra/SettingsProviderTests.cpp
     unittests/backend/cassandra/ExecutionStrategyTests.cpp

@@ -80,7 +80,8 @@ public:
     using FunctionType = void(boost::system::error_code);
     using AsyncResultType =
         boost::asio::async_result<CompletionTokenType, FunctionType>;
-    using HandlerType = typename AsyncResultType::completion_handler_type;
+    using HandlerType =
+        BOOST_ASIO_HANDLER_TYPE(CompletionTokenType, FunctionType);
 
     DefaultExecutionStrategy(Settings settings, HandleType const& handle)
         : maxWriteRequestsOutstanding_{settings.maxWriteRequestsOutstanding}

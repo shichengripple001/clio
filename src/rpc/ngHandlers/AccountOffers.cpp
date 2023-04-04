@@ -107,12 +107,13 @@ tag_invoke(
     boost::json::value& jv,
     AccountOffersHandler::Output const& output)
 {
+    using boost::json::value_from;
     jv = {
         {JS(ledger_hash), output.ledgerHash},
         {JS(ledger_index), output.ledgerIndex},
         {JS(validated), output.validated},
         {JS(account), output.account},
-        {JS(offers), boost::json::value_from(output.offers)}};
+        {JS(offers), value_from(output.offers)}};
     if (output.marker)
         jv.as_object()[JS(marker)] = *output.marker;
 }

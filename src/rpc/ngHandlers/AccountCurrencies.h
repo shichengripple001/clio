@@ -73,16 +73,15 @@ public:
 
     Result
     process(Input input, boost::asio::yield_context& yield) const;
+
+private:
+    friend void
+    tag_invoke(
+        boost::json::value_from_tag,
+        boost::json::value& jv,
+        Output const& output);
+
+    friend Input
+    tag_invoke(boost::json::value_to_tag<Input>, boost::json::value const& jv);
 };
-
-void
-tag_invoke(
-    boost::json::value_from_tag,
-    boost::json::value& jv,
-    AccountCurrenciesHandler::Output const& output);
-
-AccountCurrenciesHandler::Input
-tag_invoke(
-    boost::json::value_to_tag<AccountCurrenciesHandler::Input>,
-    boost::json::value const& jv);
 }  // namespace RPCng

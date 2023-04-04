@@ -224,12 +224,13 @@ tag_invoke(
     boost::json::value& jv,
     AccountLinesHandler::Output const& output)
 {
+    using boost::json::value_from;
     auto obj = boost::json::object{
         {JS(ledger_hash), output.ledgerHash},
         {JS(ledger_index), output.ledgerIndex},
         {JS(validated), output.validated},
         {JS(limit), output.limit},
-        {JS(lines), output.lines},
+        {JS(lines), value_from(output.lines)},
     };
     if (output.marker)
         obj[JS(marker)] = output.marker.value();

@@ -89,12 +89,14 @@ tag_invoke(
     boost::json::value& jv,
     AccountCurrenciesHandler::Output const& output)
 {
+    using boost::json::value_from;
     jv = {
         {JS(ledger_hash), output.ledgerHash},
         {JS(ledger_index), output.ledgerIndex},
         {JS(validated), output.validated},
-        {JS(receive_currencies), output.receiveCurrencies},
-        {JS(send_currencies), output.sendCurrencies}};
+        {JS(receive_currencies), value_from(output.receiveCurrencies)},
+        {JS(send_currencies), value_from(output.sendCurrencies)},
+    };
 }
 
 AccountCurrenciesHandler::Input

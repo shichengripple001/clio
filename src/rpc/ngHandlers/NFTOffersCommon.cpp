@@ -170,10 +170,11 @@ tag_invoke(
     boost::json::value& jv,
     NFTOffersHandlerBase::Output const& output)
 {
+    using boost::json::value_from;
     auto object = boost::json::object{
         {JS(nft_id), output.nftID},
         {JS(validated), output.validated},
-        {JS(offers), output.offers},
+        {JS(offers), value_from(output.offers)},
     };
 
     if (output.marker)
