@@ -41,7 +41,7 @@ jobs:
           mv boost_1_77_0 boost
           cd boost
           ./bootstrap.sh
-          ./b2 define=BOOST_ASIO_HAS_STD_INVOKE_RESULT cxxflags="-std=c++20"
+          ./b2 cxxflags="-std=c++14"
       - name: install deps
         run: |
           brew install pkg-config protobuf openssl ninja cassandra-cpp-driver bison cmake
