@@ -30,31 +30,39 @@ jobs:
         id: boost
         uses: actions/cache@v3
         with:
-          path: boost
+          path: boost_1_77_0
           key: ${{ runner.os }}-boost
 
-      - name: Build boost
-        if: steps.boost.outputs.cache-hit != 'true'
-        run: |
-          rm -rf boost_1_77_0.tar.gz
-          curl -s -OJL "https://boostorg.jfrog.io/artifactory/main/release/1.77.0/source/boost_1_77_0.tar.gz"
-          tar zxf boost_1_77_0.tar.gz
-          mv boost_1_77_0 boost
-          cd boost
-          ./bootstrap.sh
-          ./b2 define=BOOST_ASIO_HAS_STD_INVOKE_RESULT cxxflags="-std=c++20"
       - name: install deps
         run: |
-          brew install pkg-config protobuf openssl ninja cassandra-cpp-driver bison cmake
+          brew install llvm@14 pkg-config protobuf openssl ninja cassandra-cpp-driver bison cmake
+
+      - name: Setup environment for llvm-14
+        run: |
+          export PATH="/opt/homebrew/opt/llvm@14/bin:$PATH"
+          export LDFLAGS="-L/opt/homebrew/opt/llvm@14/lib -L/opt/homebrew/opt/llvm@14/lib/c++ -Wl,-rpath,/opt/homebrew/opt/llvm@14/lib/c++"
+          export CPPFLAGS="-I/opt/homebrew/opt/llvm@14/include"          
+
+      - name: Build boost
+        if: ${{ steps.boost.outputs.cache-hit != 'true' }}
+        run: |
+          rm -rf boost_1_77_0.tar.gz boost_1_77_0 # cleanup if needed first
+          curl -s -fOJL "https://boostorg.jfrog.io/artifactory/main/release/1.77.0/source/boost_1_77_0.tar.gz"
+          tar zxf boost_1_77_0.tar.gz
+          cd boost_1_77_0
+          ./bootstrap.sh
+          ./b2 define=BOOST_ASIO_HAS_STD_INVOKE_RESULT cxxflags="-std=c++20"
+
       - name: Build clio
         run: |
           export BOOST_ROOT=$(pwd)/boost
           cd clio
-          cmake -B build
+          cmake -B build -DCMAKE_C_COMPILER='/opt/homebrew/opt/llvm@14/bin/clang++'
           if ! cmake --build build -j; then
             echo '# 🔥🔥 MacOS AppleClang build failed!💥' >> $GITHUB_STEP_SUMMARY
             exit 1
           fi
+
       - name: Run Test
         run: |
           cd clio/build
