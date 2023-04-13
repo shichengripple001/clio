@@ -36,12 +36,13 @@ jobs:
       - name: Build boost
         if: steps.boost.outputs.cache-hit != 'true'
         run: |
+          rm -rf boost_1_77_0.tar.gz
           curl -s -OJL "https://boostorg.jfrog.io/artifactory/main/release/1.77.0/source/boost_1_77_0.tar.gz"
           tar zxf boost_1_77_0.tar.gz
           mv boost_1_77_0 boost
           cd boost
           ./bootstrap.sh
-          ./b2 cxxflags="-std=c++14"
+          ./b2 define=BOOST_ASIO_HAS_STD_INVOKE_RESULT cxxflags="-std=c++20"
       - name: install deps
         run: |
           brew install pkg-config protobuf openssl ninja cassandra-cpp-driver bison cmake
