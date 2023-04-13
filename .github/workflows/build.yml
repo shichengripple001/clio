@@ -33,17 +33,17 @@ jobs:
           path: boost_1_77_0
           key: ${{ runner.os }}-boost
 
-      - name: install deps
+      - name: Install dependencies
         run: |
           brew install llvm@14 pkg-config protobuf openssl ninja cassandra-cpp-driver bison cmake
 
       - name: Setup environment for llvm-14
         run: |
-          export PATH="/opt/homebrew/opt/llvm@14/bin:$PATH"
-          export LDFLAGS="-L/opt/homebrew/opt/llvm@14/lib -L/opt/homebrew/opt/llvm@14/lib/c++ -Wl,-rpath,/opt/homebrew/opt/llvm@14/lib/c++"
-          export CPPFLAGS="-I/opt/homebrew/opt/llvm@14/include"          
+          export PATH="/usr/local/opt/llvm@14/bin:$PATH"
+          export LDFLAGS="-L/usr/local/opt/llvm@14/lib -L/usr/local/opt/llvm@14/lib/c++ -Wl,-rpath,/usr/local/opt/llvm@14/lib/c++"
+          export CPPFLAGS="-I/usr/local/opt/llvm@14/include"          
 
-      - name: Build boost
+      - name: Build Boost
         if: ${{ steps.boost.outputs.cache-hit != 'true' }}
         run: |
           rm -rf boost_1_77_0.tar.gz boost_1_77_0 # cleanup if needed first
@@ -53,7 +53,7 @@ jobs:
           ./bootstrap.sh
           ./b2 define=BOOST_ASIO_HAS_STD_INVOKE_RESULT cxxflags="-std=c++20"
 
-      - name: Build clio
+      - name: Build Clio
         run: |
           export BOOST_ROOT=$(pwd)/boost
           cd clio
@@ -63,7 +63,7 @@ jobs:
             exit 1
           fi
 
-      - name: Run Test
+      - name: Run tests
         run: |
           cd clio/build
           ./clio_tests --gtest_filter="-BackendTest*:BackendCassandraBaseTest*:BackendCassandraTest*"
