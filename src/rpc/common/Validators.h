@@ -357,60 +357,70 @@ checkIsU32Numeric(std::string_view sv);
 
 /**
  * @brief Provide a common used validator for ledger index
- * LedgerIndex must be a string or int
- * If the specified LedgerIndex is a string, it's value must be either
- * "validated" or a valid integer value represented as a string.
+ *
+ * LedgerIndex must be a string or int.
+ * If the specified LedgerIndex is a string, it's value must be either "validated" or a valid integer value represented
+ * as a string.
  */
 extern CustomValidator LedgerIndexValidator;
 
 /**
  * @brief Provide a common used validator for account
+ *
  * Account must be a string and the converted public key is valid
  */
 extern CustomValidator AccountValidator;
 
 /**
- * @brief Provide a common used validator for account
+ * @brief Provide a common used validator for account.
+ *
  * Account must be a string and can convert to base58
  */
 extern CustomValidator AccountBase58Validator;
 
 /**
- * @brief Provide a common used validator for marker
- *  Marker is composed of a comma separated index and start hint. The
- *   former will be read as hex, and the latter can cast to uint64.
+ * @brief Provide a common used validator for marker.
+ *
+ * Marker is composed of a comma separated index and start hint.
+ * The former will be read as hex, and the latter can cast to uint64.
  */
 extern CustomValidator AccountMarkerValidator;
 
 /**
- * @brief Provide a common used validator for uint256 hex string
- * It must be a string and hex
- * Transaction index, ledger hash all use this validator
+ * @brief Provide a common used validator for uint256 hex string.
+ *
+ * Must be a string and hex.
+ * Transaction index, ledger hash all use this validator.
  */
 extern CustomValidator Uint256HexStringValidator;
 
 /**
- * @brief Provide a common used validator for currency
- * including standard currency code and token code
+ * @brief Provide a common used validator for currency including standard currency code and token code
  */
 extern CustomValidator CurrencyValidator;
 
 /**
- * @brief Provide a common used validator for issuer type
- * It must be a hex string or base58 string
+ * @brief Provide a common used validator for issuer type.
+ *
+ * Must be a hex string or base58 string.
  */
 extern CustomValidator IssuerValidator;
 
 /**
- * @brief Provide a validator for validating valid streams used in
- * subscribe/unsubscribe
+ * @brief Provide a validator for validating valid streams used in subscribe/unsubscribe.
  */
 extern CustomValidator SubscribeStreamValidator;
 
 /**
- * @brief Provide a validator for validating valid accounts used in
- * subscribe/unsubscribe
+ * @brief Provide a validator for validating valid accounts used in subscribe/unsubscribe.
  */
 extern CustomValidator SubscribeAccountsValidator;
+
+/**
+ * @brief Validates an asset (ripple::Issue).
+ *
+ * Used by amm_info.
+ */
+extern CustomValidator AssetValidator;
 
 }  // namespace RPC::validation

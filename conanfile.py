@@ -19,7 +19,7 @@ class Clio(ConanFile):
     }
 
     requires = [
-        'clio-xrpl/1.10.0',
+        'clio-xrpl/1.12.0-b1',
         'boost/1.77.0',
         'grpc/1.50.1',
         'openssl/1.1.1m',
