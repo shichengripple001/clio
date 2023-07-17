@@ -1,5 +1,5 @@
-target_link_libraries(clio_tests PUBLIC clio ${CONAN_LIBS_GTEST})
-target_include_directories(clio_tests PRIVATE ${CONAN_INCLUDE_DIRS_GTEST})
+target_link_libraries(clio_tests PUBLIC clio)
+target_link_libraries(clio_tests PRIVATE CONAN_PKG::gtest) 
 
 enable_testing()
 include(GoogleTest)

@@ -106,6 +106,7 @@ target_link_libraries(clio_server PUBLIC clio)
 if(tests)
   set(TEST_TARGET clio_tests)
   add_executable(${TEST_TARGET}
+    unittests/Main.cpp
     unittests/Playground.cpp
     unittests/Logger.cpp
     unittests/Config.cpp

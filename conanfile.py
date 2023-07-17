@@ -19,7 +19,7 @@ class Clio(ConanFile):
     }
 
     requires = [
-        'clio-xrpl/1.11.0',
+        'clio-xrpl/1.10.0',
         'boost/1.77.0',
         'grpc/1.50.1',
         'openssl/1.1.1m',
@@ -47,6 +47,8 @@ class Clio(ConanFile):
         'protobuf/*:shared': False,
         'protobuf/*:with_zlib': True,
         'snappy/*:shared': False,
+        'gtest/*:build_gmock': True,
+        'gtest/*:no_main': True, # Enabling this does not seem to produce test_main symbol
     }
         
     generators = ('cmake') # this may have to be done differently
