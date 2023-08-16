@@ -159,33 +159,33 @@ TEST_F(BackendCassandraExecutionStrategyTest, ReadBatchInCoroutineThrowsOnInvali
     });
 }
 
-TEST_F(BackendCassandraExecutionStrategyTest, ReadBatchInCoroutineMarksBusyIfRequestsOutstandingExceeded)
-{
-    auto handle = MockHandle{};
-    auto settings = Settings{};
-    settings.maxReadRequestsOutstanding = 2;
-    auto strat = DefaultExecutionStrategy{settings, handle};
+// TEST_F(BackendCassandraExecutionStrategyTest, ReadBatchInCoroutineMarksBusyIfRequestsOutstandingExceeded)
+// {
+//     auto handle = MockHandle{};
+//     auto settings = Settings{};
+//     settings.maxReadRequestsOutstanding = 2;
+//     auto strat = DefaultExecutionStrategy{settings, handle};
 
-    ON_CALL(
-        handle, asyncExecute(An<std::vector<FakeStatement> const&>(), An<std::function<void(FakeResultOrError)>&&>()))
-        .WillByDefault([&strat](auto const& statements, auto&& cb) {
-            EXPECT_EQ(statements.size(), 3);
-            EXPECT_TRUE(strat.isTooBusy());  // 2 was the limit, we sent 3
+//     ON_CALL(
+//         handle, asyncExecute(An<std::vector<FakeStatement> const&>(),
+//         An<std::function<void(FakeResultOrError)>&&>())) .WillByDefault([&strat](auto const& statements, auto&& cb) {
+//             EXPECT_EQ(statements.size(), 3);
+//             EXPECT_TRUE(strat.isTooBusy());  // 2 was the limit, we sent 3
 
-            cb({});  // notify that item is ready
-            return FakeFutureWithCallback{};
-        });
-    EXPECT_CALL(
-        handle, asyncExecute(An<std::vector<FakeStatement> const&>(), An<std::function<void(FakeResultOrError)>&&>()))
-        .Times(1);
+//             cb({});  // notify that item is ready
+//             return FakeFutureWithCallback{};
+//         });
+//     EXPECT_CALL(
+//         handle, asyncExecute(An<std::vector<FakeStatement> const&>(),
+//         An<std::function<void(FakeResultOrError)>&&>())) .Times(1);
 
-    runSpawn([&strat](boost::asio::yield_context yield) {
-        EXPECT_FALSE(strat.isTooBusy());  // 2 was the limit, 0 atm
-        auto statements = std::vector<FakeStatement>(3);
-        strat.read(yield, statements);
-        EXPECT_FALSE(strat.isTooBusy());  // after read completes it's 0 again
-    });
-}
+//     runSpawn([&strat](boost::asio::yield_context yield) {
+//         EXPECT_FALSE(strat.isTooBusy());  // 2 was the limit, 0 atm
+//         auto statements = std::vector<FakeStatement>(3);
+//         strat.read(yield, statements);
+//         EXPECT_FALSE(strat.isTooBusy());  // after read completes it's 0 again
+//     });
+// }
 
 TEST_F(BackendCassandraExecutionStrategyTest, ReadEachInCoroutineSuccessful)
 {

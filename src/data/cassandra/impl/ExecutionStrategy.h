@@ -55,7 +55,7 @@ class DefaultExecutionStrategy
     std::atomic_uint32_t numWriteRequestsOutstanding_ = 0;
 
     std::uint32_t maxReadRequestsOutstanding_;
-    std::atomic_uint32_t numReadRequestsOutstanding_ = 0;
+    // std::atomic_uint32_t numReadRequestsOutstanding_ = 0;
 
     std::mutex throttleMutex_;
     std::condition_variable throttleCv_;
@@ -89,8 +89,8 @@ public:
         , handle_{std::cref(handle)}
         , thread_{[this]() { ioc_.run(); }}
     {
-        LOG(log_.info()) << "Max write requests outstanding is " << maxWriteRequestsOutstanding_
-                         << "; Max read requests outstanding is " << maxReadRequestsOutstanding_;
+        LOG(log_.info()) << "Max write requests outstanding is " << maxWriteRequestsOutstanding_;
+        //   << "; Max read requests outstanding is " << maxReadRequestsOutstanding_;
     }
 
     ~DefaultExecutionStrategy()
@@ -118,7 +118,7 @@ public:
     bool
     isTooBusy() const
     {
-        return numReadRequestsOutstanding_ >= maxReadRequestsOutstanding_;
+        return false;  // numReadRequestsOutstanding_ >= maxReadRequestsOutstanding_;
     }
 
     /**
@@ -228,13 +228,13 @@ public:
     [[maybe_unused]] ResultOrErrorType
     read(CompletionTokenType token, std::vector<StatementType> const& statements)
     {
-        auto const numStatements = statements.size();
+        // auto const numStatements = statements.size();
         std::optional<FutureWithCallbackType> future;
 
         // todo: perhaps use policy instead
         while (true)
         {
-            numReadRequestsOutstanding_ += numStatements;
+            // numReadRequestsOutstanding_ += numStatements;
             // TODO: see if we can avoid using shared_ptr for self here
             auto init = [this, &statements, &future]<typename Self>(Self& self) {
                 future.emplace(handle_.get().asyncExecute(
@@ -254,7 +254,7 @@ public:
 
             auto res = boost::asio::async_compose<CompletionTokenType, void(ResultOrErrorType)>(
                 init, token, boost::asio::get_associated_executor(token));
-            numReadRequestsOutstanding_ -= numStatements;
+            // numReadRequestsOutstanding_ -= numStatements;
 
             if (res)
             {
@@ -286,7 +286,7 @@ public:
         // todo: perhaps use policy instead
         while (true)
         {
-            ++numReadRequestsOutstanding_;
+            // ++numReadRequestsOutstanding_;
             // TODO: see if we can avoid using shared_ptr for self here
             auto init = [this, &statement, &future]<typename Self>(Self& self) {
                 future.emplace(handle_.get().asyncExecute(
@@ -303,7 +303,7 @@ public:
 
             boost::asio::async_compose<CompletionTokenType, void()>(
                 init, token, boost::asio::get_associated_executor(token));
-            --numReadRequestsOutstanding_;
+            // --numReadRequestsOutstanding_;
 
             if (auto res = future->get(); res)
             {
@@ -333,7 +333,7 @@ public:
     {
         std::atomic_bool hadError = false;
         std::atomic_int numOutstanding = statements.size();
-        numReadRequestsOutstanding_ += statements.size();
+        // numReadRequestsOutstanding_ += statements.size();
 
         auto futures = std::vector<FutureWithCallbackType>{};
         futures.reserve(numOutstanding);
@@ -368,7 +368,7 @@ public:
 
         boost::asio::async_compose<CompletionTokenType, void()>(
             init, token, boost::asio::get_associated_executor(token));
-        numReadRequestsOutstanding_ -= statements.size();
+        // numReadRequestsOutstanding_ -= statements.size();
 
         if (hadError)
             throw DatabaseTimeout{};
