@@ -60,9 +60,15 @@ public:
             {
                 std::this_thread::sleep_for(std::chrono::milliseconds{100});
                 std::lock_guard l(mtx_);
-                if (std::chrono::steady_clock::now() - std::get<1>(latest_) >= std::chrono::seconds{1})
+                auto [fc, ft] = first_;
+                auto [lc, lt] = latest_;
+
+                if (std::chrono::steady_clock::now() - lt >= std::chrono::seconds{1})
                 {
-                    std::cout << "detected lock: " << std::get<0>(first_) << "; " << std::get<0>(latest_) << std::endl;
+                    if (fc > lc)
+                        std::cout << "detected lock: " << fc << " > " << lc << std::endl;
+                    else if (fc == lc)
+                        std::cout << "detected slowdown: " << fc << " == " << lc << std::endl;
                 }
             }
         })
@@ -197,6 +203,65 @@ readReal(test::detail::Tracker& track, auto& handle, auto const& statement, boos
         init, yield, boost::asio::get_associated_executor(yield));
 
     return res;
+}
+
+TEST_F(PlaygroundTest, RealMT)
+{
+    using namespace data::cassandra;
+    constexpr static auto contactPoints = "127.0.0.1";
+    constexpr static auto keyspace = "test";
+
+    Config cfg{boost::json::parse(fmt::format(
+        R"JSON({{
+            "contact_points": "{}",
+            "keyspace": "{}",
+            "replication_factor": 1,
+            "max_write_requests_outstanding": 1000,
+            "max_read_requests_outstanding": 100000,
+            "threads": 4
+        }})JSON",
+        contactPoints,
+        keyspace))};
+    SettingsProvider settingsProvider{cfg, 0};
+    auto settings = settingsProvider.getSettings();
+    auto handle = Handle{settings};
+
+    if (auto const res = handle.connect(); not res)
+        throw std::runtime_error("Could not connect to Cassandra: " + res.error());
+
+    auto schema = Schema{settingsProvider};
+    if (auto res = handle.execute(schema.createKeyspace); not res)
+        throw std::runtime_error("oops: " + res.error());
+    if (auto res = handle.executeEach(schema.createSchema); not res)
+        throw std::runtime_error("oops: " + res.error());
+    schema.prepareStatements(handle);
+
+    auto statement = schema->selectLedgerRange.bind();
+
+    test::detail::Tracker track;
+    std::atomic_uint32_t callCount = 0u;
+    boost::asio::thread_pool pool{1};
+
+    constexpr auto TOTAL = 100'000u;
+
+    for (auto i = 0u; i < TOTAL; ++i)
+    {
+        boost::asio::spawn(pool, [&track, &handle, &statement, &callCount](auto yield) {
+            auto res = readReal(track, handle, statement, yield);
+            ++callCount;
+
+            if (callCount % 500 == 0)
+                std::cout << " + calls: " << callCount.load() << std::endl;
+        });
+
+        // throttle if needed:
+        // std::this_thread::sleep_for(std::chrono::nanoseconds{5});
+    }
+
+    pool.join();
+
+    EXPECT_TRUE(callCount == TOTAL);
+    std::cout << "done." << std::endl;
 }
 
 TEST_F(PlaygroundTest, Real)
