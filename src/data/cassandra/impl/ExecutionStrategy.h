@@ -240,14 +240,14 @@ public:
                 future.emplace(handle_.get().asyncExecute(
                     statements, [sself = std::make_shared<Self>(std::move(self))](auto&& res) mutable {
                         // Note: explicit work below needed on linux/gcc11
-                        auto executor = boost::asio::get_associated_executor(*sself);
+                        // auto executor = boost::asio::get_associated_executor(*sself);
+                        auto executor = boost::asio::system_executor{};
                         boost::asio::post(
                             executor,
                             [sself = std::move(sself),
                              res = std::move(res),
                              _ = boost::asio::make_work_guard(executor)]() mutable {
                                 sself->complete(std::move(res));
-                                sself.reset();
                             });
                     }));
             };
@@ -292,11 +292,11 @@ public:
                 future.emplace(handle_.get().asyncExecute(
                     statement, [sself = std::make_shared<Self>(std::move(self))](auto&&) mutable {
                         // Note: explicit work below needed on linux/gcc11
-                        auto executor = boost::asio::get_associated_executor(*sself);
+                        // auto executor = boost::asio::get_associated_executor(*sself);
+                        auto executor = boost::asio::system_executor{};
                         boost::asio::post(
                             executor, [sself = std::move(sself), _ = boost::asio::make_work_guard(executor)]() mutable {
                                 sself->complete();
-                                sself.reset();
                             });
                     }));
             };
@@ -348,11 +348,11 @@ public:
                 if (--numOutstanding == 0)
                 {
                     // Note: explicit work below needed on linux/gcc11
-                    auto executor = boost::asio::get_associated_executor(*sself);
+                    // auto executor = boost::asio::get_associated_executor(*sself);
+                    auto executor = boost::asio::system_executor{};
                     boost::asio::post(
                         executor, [sself = std::move(sself), _ = boost::asio::make_work_guard(executor)]() mutable {
                             sself->complete();
-                            sself.reset();
                         });
                 }
             };
