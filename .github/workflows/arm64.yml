@@ -1,7 +1,7 @@
 on:
   push:
-    branches:
-      - "dual_arch"
+    branches: [main, release/*, develop]
+  workflow_dispatch:
 
 jobs:
   build:
