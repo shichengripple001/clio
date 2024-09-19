@@ -1,0 +1,11 @@
+on:
+  push:
+    branches:
+      - "dual_arch"
+
+jobs:
+  build:
+    runs-on: [self-hosted, heavy-arm64]
+    steps:
+      - shell: bash
+        run: echo $(uname -a)
